@@ -1,0 +1,45 @@
+{
+  "manifest_version": 2,
+
+  "name": "ZESU plugin",
+  "description": "宙思設計專用工具",
+  "version": "1.0.0",
+
+  "browser_action": {
+    "default_icon": {
+      "16": "img/logo/icon_16.png",
+      "24": "img/logo/icon_24.png",
+      "32": "img/logo/icon_32.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "http://*/*",
+    "https://*/*",
+    "contextMenus",
+    "downloads", "downloads.open"
+  ],
+  // "background": {
+  //   "persistent": false,
+  //   "scripts": ["js/sample.js"]
+  // },
+
+ "default_locale": "en",
+  // "background": {"persistent": false, "scripts": ["js/background.js"]},
+
+  "icons": {
+    "16": "img/logo/icon_16.png",
+    "48": "img/logo/icon_48.png",
+    "128": "img/logo/icon_128.png"
+  }
+  ,
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "css": ["css/zeus_client.css"]
+      // ,
+      // "js": ["js/zeus_client.js"]
+    }
+  ]
+}
