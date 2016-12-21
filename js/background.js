@@ -10,82 +10,25 @@ u[o]&&(delete u[o],c?delete n[l]:typeof n.removeAttribute!==i?n.removeAttribute(
  * @copyright   Copyright (c) 2016 OA Wu Design
  */
 $(function () {
-  var _domain = 'admin.zeusdesign.com.tw';
 
-  chrome.notifications.onClicked.addListener (function (id) { chrome.notifications.clear (id, function () { }); });
+  // chrome.notifications.onClicked.addListener (function (id) { chrome.notifications.clear (id, function () { }); });
 
-  // chrome.contextMenus.create ({
-  //   title: '存到宙思圖庫',
-  //   contexts: ['image'],
-  //   onclick:zeusPicBase
-  // });
-
-
-var parent = chrome.contextMenus.create ({title: '存到宙思圖庫', contexts: ['image'], onclick: zeusPicBase});
-// var child1 = chrome.contextMenus.create ({title: "分類 1", 'parentId': parent, contexts: ['image'], onclick: zeusPicBase});
-// var child2 = chrome.contextMenus.create ({title: "分類 2", 'parentId': parent, contexts: ['image'], onclick: zeusPicBase});
-
-
+  chrome.contextMenus.create ({
+    title: '存到宙思圖庫',
+    contexts: ['image'],
+    onclick:zeusPicBase
+  });
   function currentTab (tabCallback) {
     chrome.tabs.query ({ currentWindow: true, active: true }, function (tabArray) { tabCallback (tabArray[0]); });
   }
-
-
   function zeusPicBase (selector) {
     currentTab (function (tab) {
-      var code = [
-            'var d = document.createElement("div");',
-            'd.setAttribute("style", "'
-                + 'background-color: red; '
-                + 'width: 100px; '
-                + 'height: 100px; '
-                + 'position: fixed; '
-                + 'top: 70px; '
-                + 'left: 30px; '
-                + 'z-index: 9999; '
-                + '");',
-            'document.body.appendChild(d);'
-        ].join("\n");
-console.error (tab);
 
-        /* Inject the code into the current tab */
-        chrome.tabs.executeScript(tab.id, { code: code });
-    });
-
+      chrome.tabs.sendMessage (tab.id, {
+        url: tab.url,
+        src: selector.srcUrl
+      }, function (response) { });
+    })
   }
-  // function zeusPicBase (selector) {
-  //   currentTab (function (tab) {
-  //     if (!(tab && typeof tab.url !== 'undefined' && tab.url.length > 0 && typeof selector.srcUrl !== 'undefined' && selector.srcUrl.length > 0)) return false;
-
-  //     $.ajax ({ url: 'https://' + _domain + '/api/users/id', async: true, cache: false, dataType: 'json', type: 'get'}).done (function (result) {
-
-  //       $.ajax ({ url: 'https://' + _domain + '/api/image_bases/', data: {
-  //         user_id: result.id,
-  //         from_url: tab.url,
-  //         image_url: selector.srcUrl
-  //       }, async: true, cache: false, dataType: 'json', type: 'POST'}).done (function (result) {
-
-  //         chrome.notifications.create ('reminder', {
-  //           type: 'basic',
-  //           iconUrl: 'img/logo/icon_128.png',
-  //           title: '儲存成功',
-  //           message: '你剛剛所選的圖片已經成功存到宙思圖庫囉！'
-  //         }, function (notificationId) { setTimeout (function () { chrome.notifications.clear (notificationId, function () { }); }, 4000); });
-
-  //       })
-  //       .fail (function (result) {
-          
-  //         chrome.notifications.create ('reminder', {
-  //           type: 'basic',
-  //           iconUrl: 'img/logo/icon_128.png',
-  //           title: '儲存失敗',
-  //           message: '你剛剛所選的圖片尚未存到宙思圖庫..' + (typeof result.responseJSON.message !== 'undefined' ? '，錯誤原因可能是 ' + result.responseJSON.message : '') + '。'
-  //         }, function (notificationId) { setTimeout (function () { chrome.notifications.clear (notificationId, function () { }); }, 4000); });
-
-  //       });
-  //     })
-  //     .fail (function (result) { if (confirm ('您尚未登入，請先登入吧！')) chrome.tabs.create ({url: 'https://' + _domain + '/login'}); });
-  //   });
-  // }
 
 });

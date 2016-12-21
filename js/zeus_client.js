@@ -8,112 +8,127 @@ if (!window.jQuery) {
 }
 $(function () {
   window.zeus = {};
+  window.zeus.$body = $('body');
+  window.zeus.protocol = 'https://';
+  window.zeus.domain = 'admin.zeusdesign.com.tw';
+  
+  window.zeus.api = {
+    imageBaseBox: {
+      login: window.zeus.protocol + window.zeus.domain + '/login',
+      create: window.zeus.protocol + window.zeus.domain + '/api/image_bases/',
+      getTags: window.zeus.protocol + window.zeus.domain + '/api/image-base-tags',
+      checkLogin: window.zeus.protocol + window.zeus.domain + '/api/users/id',
+    }
+  };
 
   window.zeus.model = {
     imageBaseBox: {
-      init: function () {
+      url: '',
+      src: '',
 
-var _protocol = 'https://';
-  var _domain = 'dev.admin.zeusdesign.com.tw';
-  var _$b = $('body');
+      $box: $('<div />').attr ('id', '_z_img_box').addClass ('_z_clean'),
+      $input: $('<input />').attr ('type', 'text').attr ('placeholder', '備註..').addClass ('_z_wrapper_content_memo'),
+      $select: $('<select />').addClass ('_z_wrapper_content_select'),
+      $cover: $('<div />').addClass ('_z_cover'),
+      $content: $('<div />').addClass ('_z_wrapper_content'),
+      $okButton: $('<div />').addClass ('_z_wrapper_btns_ok').text ('確定'),
+      $noButton: $('<div />').addClass ('_z_wrapper_btns_cancel').text ('取消'),
+      $header: $('<div />').addClass ('_z_wrapper_header').append (
+                $('<div />').addClass ('_z_wrapper_header_img')).append (
+                $('<span />').addClass ('_z_wrapper_header_span').text ('將圖片存到宙思圖庫')),
+      $buttons: $('<div />').addClass ('_z_wrapper_btns'),
+      $img: $('<img />').attr ('src', ''),
+      $sizeWidth: $('<span />').text ('0px'),
+      $sizeHeight: $('<span />').text ('0px'),
+      $wrapper: $('<div />').addClass ('_z_wrapper'),
 
-  var _$in = $('<input />').attr ('type', 'text').attr ('placeholder', '備註..').addClass ('_z_wrapper_content_memo');
-  var _$s = $('<select />').addClass ('_z_wrapper_content_select');
-  var _$v = $('<div />').addClass ('_z_cover').click (function () {
-    $(this).parent ().addClass ('_z_hide');
+      close: function () {
+        this.$box.addClass ('_z_hide');
     
-    setTimeout (function () {
-      _$c.attr ('data-error', '');
-      $(this).removeClass ().addClass ('_z_clean');
-    }.bind ($(this).parent ()), 150);
-  });
-  var _$ok = $('<div />').addClass ('_z_wrapper_btns_ok').text ('確定');
-  var _$h = $('<div />').addClass ('_z_wrapper_header').append (
-    $('<div />').addClass ('_z_wrapper_header_img')).append (
-    $('<span />').addClass ('_z_wrapper_header_span').text ('將圖片存到宙思圖庫'));
-  var _$n = $('<div />').addClass ('_z_wrapper_btns').append (
-    $('<div />').addClass ('_z_wrapper_btns_cancel').text ('取消').click (function () {
-      _$v.click ();
-    })).append (
-    _$ok);
-  var _$i = $('<img />').attr ('src', '');
-  var _$sw = $('<span />').text ('0px');
-  var _$sh = $('<span />').text ('0px');
-  var _$is = $('<div />').addClass ('_z_wrapper_content_infos').append (
-    $('<div />').addClass ('_z_wrapper_content_info').append ($('<b />').text ('寬度：')).append (_$sw)).append (
-    $('<div />').addClass ('_z_wrapper_content_info').append ($('<b />').text ('高度：')).append (_$sh)).append (
-    _$s).append (
-    _$in);
-  var _$c = $('<div />').addClass ('_z_wrapper_content').append ($('<div />').addClass ('_z_wrapper_content_img').append (_$i)).append (_$is);
-  
-  var _$w = $('<div />').addClass ('_z_wrapper').append (_$h).append (_$c).append (_$n);
-  
-  var _$d = $('<div />').attr ('id', '_z_img_box').addClass ('_z_clean').append (
-    _$v).append (
-    _$w).appendTo (_$b);
+        setTimeout (function () {
+          this.$content.attr ('data-error', '');
+          this.$box.removeClass ().addClass ('_z_clean');
+        }.bind (this), 150);
+      },
+      init: function (url, src, callback) {
+        if (!(url.length > 0 && src.length > 0)) return false;
+        this.url = url;
+        this.src = src;
+        this.$img.attr ('src', this.src);
 
+        if (window.zeus.$body.find ('#_z_img_box').length) return callback.bind (this) ();
 
+        this.$cover.click (this.close.bind (this));
+        this.$noButton.unbind ('click').click (this.close.bind (this));
+        this.$buttons.append (this.$noButton).append (this.$okButton);
         
+        this.$input.val ('');
+
+        this.$content.append ($('<div />').addClass ('_z_wrapper_content_img').append (
+          this.$img)).append (
+          $('<div />').addClass ('_z_wrapper_content_infos').append (
+            $('<div />').addClass ('_z_wrapper_content_info').append ($('<b />').text ('寬度：')).append (this.$sizeWidth)).append (
+            $('<div />').addClass ('_z_wrapper_content_info').append ($('<b />').text ('高度：')).append (this.$sizeHeight)).append (
+            this.$select).append (
+            this.$input));
+
+        this.$wrapper.append (this.$header).append (this.$content).append (this.$buttons);
+        this.$box.append (this.$cover).append (this.$wrapper).appendTo (window.zeus.$body);
+
+        callback.bind (this) ();
+      },
+      checkLogin: function (callback, error) {
+        $.ajax ({ url: window.zeus.api.imageBaseBox.checkLogin, async: true, cache: false, dataType: 'json', type: 'get'}).done (callback.bind (this))
+        .fail (error.bind (this));
+      },
+      getTags: function (callback) {
+        $.ajax ({ url: window.zeus.api.imageBaseBox.getTags, async: true, cache: false, dataType: 'json', type: 'get'}).done (callback.bind (this))
+        .fail (callback.bind (this, []));
+      },
+      showBox: function (tags) {
+        this.$select.empty ().append ($('<option />').val (0).text ('請選擇分類..')).append (tags.map (function (t) { return $('<option />').val (t.id).text (t.name); }));
+        this.$sizeWidth.text (this.$img.get (0).width + 'px');
+        this.$sizeHeight.text (this.$img.get (0).height + 'px');
+
+        this.$okButton.unbind ('click').click (this.submit.bind (this));
+        this.$box.removeClass ('_z_loading');
+      },
+      submit: function () {
+        this.$box.addClass ('_z_loading');
+
+        $.ajax ({ url: window.zeus.api.imageBaseBox.create, data: {
+          from_url: this.url,
+          image_url: this.src,
+          image_base_tag_id: this.$select.val (),
+          memo: this.$input.val (),
+        }, async: true, cache: false, dataType: 'json', type: 'POST'})
+        .done (function (result) {
+          this.$box.removeClass ('_z_loading').addClass ('_z_success');
+          this.$okButton.unbind ('click').click (this.close.bind (this));
+        }.bind (this))
+        .fail (function (result) {
+          this.$box.removeClass ('_z_loading').addClass ('_z_failure');
+          this.$content.attr ('data-error', (typeof result.responseJSON.message !== 'undefined' ? '錯誤原因可能是 ' + result.responseJSON.message : ''));
+          this.$okButton.unbind ('click').click (this.close.bind (this));
+        }.bind (this));
       }
     }
   };
-  
 
 
-  // function _zeus_submit (url, src) {
-  //   _$d.addClass ('_z_loading');
 
-  //   $.ajax ({ url: _protocol + _domain + '/api/image_bases/', data: {
-  //     from_url: url,
-  //     image_url: src,
-  //     image_base_tag_id: _$s.val (),
-  //     memo: _$in.val (),
-  //   }, async: true, cache: false, dataType: 'json', type: 'POST'})
-  //   .done (function (result) {
-  //     _$d.removeClass ('_z_loading').addClass ('_z_success');
-  //   })
-  //   .fail (function (result) {
-  //     _$d.removeClass ('_z_loading').addClass ('_z_failure');
-  //     _$c.attr ('data-error', (typeof result.responseJSON.message !== 'undefined' ? '錯誤原因可能是 ' + result.responseJSON.message : ''));
-  //     _$ok.unbind ('click').click (function () {
-  //       _$v.click ();
-  //     });
-  //   });
+  chrome.runtime.onMessage.addListener (function (request, sender, sendResponse) {
+    window.zeus.model.imageBaseBox.init (request.url, request.src, function () {
+      this.$box.addClass ('_z_show').addClass ('_z_loading');
 
-  // }
-  // function _zeus_show (url, src, tags) {
-  //   _$s.empty ().append ($('<option />').val (0).text ('請選擇分類..')).append (tags.map (function (t) {
-  //     return $('<option />').val (t.id).text (t.name);
-  //   }));
-  //   _$in.val ('');
-  //   _$i.attr ('src', src);
-  //   _$sw.text (_$i.get (0).width + 'px');
-  //   _$sh.text (_$i.get (0).height + 'px');
-  //   _$ok.unbind ('click').click (function () {
-  //     _zeus_submit (url, src);
-  //   });
-  //   _$d.removeClass ('_z_loading');
-  // }
-  // function _zeus_init (url, src) {
-  //   if (!(url.length > 0 && src.length > 0)) return false;
+      this.checkLogin (function (result) {
+        
+        this.getTags (this.showBox);
 
-  //   _$d.addClass ('_z_show').addClass ('_z_loading');
-    
-  //   $.ajax ({ url: _protocol + _domain + '/api/users/id', async: true, cache: false, dataType: 'json', type: 'get'}).done (function (result) {
-      
-  //     $.ajax ({ url: _protocol + _domain + '/api/image-base-tags', async: true, cache: false, dataType: 'json', type: 'get'}).done (function (result) {
-  //       _zeus_show (url, src, result);
-  //     })
-  //     .fail (function (result) {
-  //       _zeus_show (url, src, []);
-  //     });
-  //   })
-  //   .fail (function (result) { 
-  //     _$d.removeClass ('_z_loading').addClass ('_z_login');
-  //     _$ok.unbind ('click').click (function () {
-  //       window.open (_protocol + _domain + '/login');
-  //     });
-  //   });
-  // }
-  // _zeus_init (document.URL, 'https://cdn.zeusdesign.com.tw/upload/ckeditor_images/name/0/0/1/29/400h_1513650509_5848d6e6629d6.jpg');
+      }, function (result) {
+        this.$box.removeClass ('_z_loading').addClass ('_z_login');
+        this.$okButton.unbind ('click').click (function () { window.open (window.zeus.api.imageBaseBox.login); });
+      });
+    });
+  });
 });
