@@ -18,11 +18,11 @@
   @include font-smoothing(antialiased);
 }
 
-.icon-lock-open:before {
-  content: "\e902";
-}
 .icon-g_translate:before {
   content: "\e900";
+}
+.icon-lock-open:before {
+  content: "\e902";
 }
 .icon-clipboard:before {
   content: "\e9b8";
@@ -33,9 +33,6 @@
 .icon-insert-template:before {
   content: "\ea72";
 }
-
-
-
 
 
 

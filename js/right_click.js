@@ -17,7 +17,7 @@ tmp = document.getElementById ('_z_alert');
 if (tmp !== null && tmp && tmp.parentNode) tmp.parentNode.removeChild (tmp);
 
 var _z_alert = document.createElement ('div');
-_z_alert.setAttribute ('id', '_z_alert');
+_z_alert.setAttribute ('id', '_z_alert').setAttribute ('class', '_z_clean');
 document.body.appendChild (_z_alert);
 
 setTimeout (function () {

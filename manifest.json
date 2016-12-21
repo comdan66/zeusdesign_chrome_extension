@@ -22,7 +22,7 @@
     // "downloads", "downloads.open"
   ],
   "background": {
-  //   "persistent": false,
+    // "persistent": false,
     "scripts": ["js/background.js"]
   },
 
@@ -39,8 +39,8 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "css": ["css/zeus_client.css"]
-      // ,
-      // "js": ["js/zeus_client.js"]
+      ,
+      "js": ["js/zeus_client.js"]
     }
   ]
 }
